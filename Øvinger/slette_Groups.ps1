@@ -12,3 +12,10 @@ Set-ADOrganizationalUnit -Identity "OU=Groups,DC=infrait,DC=sec" -ProtectedFromA
 
 # Then delete the Groups OU
 Remove-ADOrganizationalUnit -Identity "OU=Groups,DC=infrait,DC=sec" -Confirm:$false
+
+
+# First, disable the protection of TestOU
+Set-ADOrganizationalUnit -Identity "OU=TestOU,DC=infrait,DC=sec" -ProtectedFromAccidentalDeletion $false
+
+# Then delete the TestOU
+Remove-ADOrganizationalUnit -Identity "OU=TestOU,DC=infrait,DC=sec" -Confirm:$false
