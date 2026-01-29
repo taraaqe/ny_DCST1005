@@ -1,3 +1,18 @@
-GivenName,SurName,Department,Title,Office
-Itachi,Uchiha,HR,Human Resource,
-Jane,Marie,Smith,Marketing,Marketing Manager,Chicago
+Name,lastname,SamAccountName,OUPath,GroupName
+Itachi,Uchiha,Ita,"OU=HR,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_HR
+Naruto,Uzumaki,Nar,"OU=Sales,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Sales
+Sasuke,Uchiha,Sas,"OU=Sales,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Sales
+Hinata,Hyuga,Hin,"OU=IT,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_IT
+Sakura,Haruno,Sak,"OU=IT,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_IT
+Kakashi,Hatake,Kak,"OU=Finance,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Finance
+Might,Guy,Mig,"OU=Finance,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Finance
+Shikamaru,Nara,Shi,"OU=Consulants,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Consulants
+Negi,Hyuga,Nej,"OU=Consulants,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Consulants
+Rock,Lee,Roc,"OU=Consulants,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Consulants
+#Nagato,Uzumaki,Nag,"OU=Consulants,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Consulants
+Madara,Uchiha,Mad,"OU=Consulants,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Consulants
+Obito,Uchiha,Obi,"OU=Consulants,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Consulants
+Kaguya,Otsutsuki,Kag,"OU=Consulants,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Consulants
+#Kushina,Uzumaki,Kus,"OU=Consulants,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Consulants
+#Minato,Namikaze,Min,"OU=Consulants,OU=InfraIT_Users,DC=InfraIT,DC=sec",g_all_Consulants
+

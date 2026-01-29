@@ -1,75 +1,60 @@
-function New-BulkADUsers {
-    param(
-        [Parameter(Mandatory)]
-        [string]$CsvPath,
-        [Parameter(Mandatory)]
-        [string]$Domain,
-        [Parameter(Mandatory)]
-        [string]$BasePath,  # Example: "OU=Users,DC=domain,DC=com"
-        [string]$LogPath = "user_creation_log.txt"
-    )
-    
-    # Import CSV
-    $users = Import-Csv -Path $CsvPath
-    
-    # Initialize log
-    $log = @()
-    
-    foreach ($user in $users) {
+$Users   = Import-Csv "$PSScriptRoot\users.csv"
+$Results = @()
+
+Write-Host "Loaded $($Users.Count) users from CSV"
+Write-Host "PSScriptRoot is: $PSScriptRoot"
+
+foreach ($User in $Users) {
+
+    # 1. Generate a random 12-character password
+    $CharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"
+    $RandomPassword = -join ((1..12) | ForEach-Object {
+        $CharSet[(Get-Random -Maximum $CharSet.Length)]
+    })
+
+    # 2. Convert to Secure String
+    $SecurePassword = ConvertTo-SecureString $RandomPassword -AsPlainText -Force
+
+    try {
+        # 3. Create the user
+        New-ADUser `
+            -Name $User.Name `
+            -Surname $User.LastName `
+            -SamAccountName $User.SamAccountName `
+            -Path $User.OUPath `
+            -AccountPassword $SecurePassword `
+            -Enabled $true `
+            -ChangePasswordAtLogon $true
+
+        # 4. Add to the group
         try {
-            # Generate username
-            $upn = New-StandardUsername -GivenName $user.GivenName `
-                                      `
-                                      -Surname $user.Surname `
-                                      -Domain $Domain
-            
-            $samAccountName = ($upn -split '@')[0]
-            
-            # Check if user exists
-            if (Test-ADUserExists -SamAccountName $samAccountName) {
-                $log += "SKIP: User $samAccountName already exists"
-                continue
-            }
-            
-            # Generate random password
-            $password = New-RandomPassword
-            
-            # Prepare user properties
-            $userProperties = @{
-                SamAccountName       = $samAccountName
-                UserPrincipalName   = $upn
-                Name                = "$($user.GivenName) $($user.Surname)"
-                GivenName           = $user.GivenName
-                DisplayName        = "$($user.GivenName) $($user.Surname)"
-                Department         = $user.Department
-                Title              = $user.Title
-                Office             = $user.Office
-                AccountPassword    = (ConvertTo-SecureString $password -AsPlainText -Force)
-                Enabled            = $true
-                ChangePasswordAtLogon = $true
-            }
-            
-            # Get appropriate OU path
-            $ouPath = Get-DepartmentOUPath -Department $user.Department `
-                                         -BasePath $BasePath `
-                                         -CreateIfNotExist
-            
-            # Add OU path to user properties
-            $userProperties['Path'] = $ouPath
-            
-            # Create user
-            New-ADUser @userProperties
-            $log += "SUCCESS: Created user $samAccountName in OU $ouPath with password: $password"
+            Add-ADGroupMember `
+                -Identity $User.GroupName `
+                -Members $User.SamAccountName
         }
         catch {
-            $log += "ERROR: Failed to create user from record: $($user.GivenName) $($user.Surname). Error: $_"
+            Write-Warning "User $($User.SamAccountName) created, but failed to add to group $($User.GroupName): $($_.Exception.Message)"
+        }
+
+        # 5. Record the result
+        $Results += [PSCustomObject]@{
+            Name     = $User.Name
+            LastName = $User.LastName
+            Username = $User.SamAccountName
+            Password = $RandomPassword
+            Status   = "Success"
         }
     }
-    
-    # Save log
-    $log | Out-File -FilePath $LogPath
+    catch {
+        $Results += [PSCustomObject]@{
+            Name     = $User.Name
+            LastName = $User.LastName
+            Username = $User.SamAccountName
+            Password = "N/A"
+            Status   = "Error: $($_.Exception.Message)"
+        }
+    }
 }
 
-# Usage example
-$basePath = "OU=Users,DC=domain,DC=com"
-New-BulkADUsers -CsvPath "users.csv" -Domain "domain.com" -BasePath $basePath
+# 6. Export results to a new file in VSCode folder
+$Results | Export-Csv "$PSScriptRoot\UserCreation_Results.csv" -NoTypeInformation
